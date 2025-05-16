@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="Icon" href="{{ url_for('static', filename='img/icon.png') }}">
+    <title>Smart Home - Robot Qo‘l va Kamera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Full-screen camera feed as background */
+        #camera-feed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.8);
+        }
+
+        /* Main container for controls */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Joystick grids */
+        .joystick-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .joystick-left {
+            margin-left: 10px;
+        }
+
+        .joystick-right {
+            margin-right: 10px;
+        }
+
+        .up-btn { grid-column: 2; grid-row: 1; }
+        .left-btn { grid-column: 1; grid-row: 2; }
+        .right-btn { grid-column: 3; grid-row: 2; }
+        .down-btn { grid-column: 2; grid-row: 3; }
+
+        .joystick-btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid white;
+            border-radius: 8px;
+            background: rgba(128, 128, 128, 0.5);
+            color: white;
+        }
+
+        .joystick-btn:hover {
+            background: rgba(128, 128, 128, 0.7);
+        }
+
+        /* Claw Switch */
+        .switch-container {
+            position:fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 70px;
+            height: 40px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #555; /* Gray for closed state */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        input:checked + .slider {
+            background: #1e90ff; /* Blue for open state */
+        }
+
+        /* Claw Icon */
+        .claw-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+        }
+
+        .claw-pincer {
+            fill: none;
+            stroke: #000; /* Black to match sketch */
+            stroke-width: 3;
+            stroke-linecap: round;
+            transform-origin: 16px 28px; /* Pivot at joint */
+        }
+
+        .pincer-left {
+            transform: rotate(45deg); /* Open position */
+            transition: transform 0.4s ease; /* Smooth animation */
+        }
+
+        .pincer-right {
+            transform: rotate(-45deg); /* Open position */
+            transition: transform 0.4s ease; /* Smooth animation */
+        }
+
+        input:checked + .slider .pincer-left {
+            transform: rotate(10deg); /* Closed position */
+        }
+
+        input:checked + .slider .pincer-right {
+            transform: rotate(-10deg); /* Closed position */
+        }
+
+        /* Joint */
+        .claw-joint {
+            fill: #fff;
+            cx: 16;
+            cy: 28;
+            r: 2;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .joystick-btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .switch {
+                width: 60px;
+                height: 34px;
+            }
+
+            .claw-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            .claw-pincer {
+                stroke-width: 2.5;
+            }
+
+            .switch-container {
+                padding: 10px;
+            }
+        }
+        .Mayank1170-button-1:hover {
+            background-position: 100% 0;
+            -moz-transition: all 0.4s ease-in-out;
+            -o-transition: all 0.4s ease-in-out;
+            -webkit-transition: all 0.4s ease-in-out;
+            transition: all 0.4s ease-in-out;
+        }
+        
+        .Mayank1170-button-1 {
+            width: 100%;;
+            font-size: 50px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            height: 55px;
+            text-align: center;
+            border: none;
+            background-size: 300% 100%;
+            -o-transition: all 0.4s ease-in-out;
+            -webkit-transition: all 0.4s ease-in-out;
+            transition: all 0.4s ease-in-out;
+            background-image: linear-gradient(to right,
+                    #ed6ea0,
+                    #ec8c69,
+                    #f7186a,
+                    #fbb03b);
+            box-shadow: 0 4px 15px 0 rgba(236, 116, 149, 0.75);}
+    
+    </style>
+</head>
+<body>
+    <!-- Camera feed as background -->
+    <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Live Camera Feed">
+    <button style="width: 1px;height: 20px;"></button>
+    <button class="Mayank1170-button-1" type="button" onclick="window.location.href='/'">Asosiyga qaytish</button>
+    <div class="container">
+        <!-- Left Joystick (Head and Lift) -->
+        <div class="joystick-grid joystick-left">
+            <button class="joystick-btn up-btn" onclick="updateJoystick(1, 'up')">Tepa</button>
+            <button class="joystick-btn left-btn" onclick="updateJoystick(1, 'left')">Chap</button>
+            <button class="joystick-btn right-btn" onclick="updateJoystick(1, 'right')">O‘ng</button>
+            <button class="joystick-btn down-btn" onclick="updateJoystick(1, 'down')">Past</button>
+        </div>
+
+        <!-- Right Joystick (Middle and Base) -->
+        <div class="joystick-grid joystick-right">
+            <button class="joystick-btn up-btn" onclick="updateJoystick(2, 'up')">Tepa</button>
+            <button class="joystick-btn left-btn" onclick="updateJoystick(2, 'left')">Chap</button>
+            <button class="joystick-btn right-btn" onclick="updateJoystick(2, 'right')">O‘ng</button>
+            <button class="joystick-btn down-btn" onclick="updateJoystick(2, 'down')">Past</button>
+        </div>
+
+        <!-- Claw Switch -->
+        <div class="switch-container">
+            <label class="switch">
+                <input type="checkbox" id="claw-switch" onclick="updateClaw(this.checked)">
+                <span class="slider"><!-- Replace the existing SVG in your code with this -->
+                    <!-- SVG (o‘zgarmagan, faqat harakat o‘zgaradi) -->
+                    <svg class="claw-icon" viewBox="0 0 32 32">
+                        <!-- Left Pincer -->
+                        <path class="claw-pincer pincer-left" d="M 16 28 H 14 L 12 18 L 10 12" />
+                        <!-- Right Pincer -->
+                        <path class="claw-pincer pincer-right" d="M 16 28 H 18 L 20 18 L 22 12" />
+                        <!-- Joint -->
+                        <circle class="claw-joint" />
+                    </svg>
+
+                    <!-- Yangi CSS -->
+                    <style>
+                    .claw-icon {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 32px;
+                        height: 32px;
+                    }
+
+                    .claw-pincer {
+                        fill: none;
+                        stroke: #000;
+                        stroke-width: 3;
+                        stroke-linecap: round;
+                    }
+
+                    .pincer-left {
+                        transform: translateX(-6px) rotate(5deg); /* Yopiq holat: yaqinroq */
+                        transform-origin: 16px 28px;
+                        transition: transform 0.4s ease; /* Smooth animation */
+                    }
+
+                    .pincer-right {
+                        transform: translateX(6px) rotate(-5deg); /* Yopiq holat: yaqinroq */
+                        transform-origin: 16px 28px;
+                        transition: transform 0.4s ease; /* Smooth animation */
+                    }
+
+                    input:checked + .slider .pincer-left {
+                        transform: translateX(-6px) rotate(40deg); /* Ochiq holat: tegmasdan */
+                    }
+
+                    input:checked + .slider .pincer-right {
+                        transform: translateX(6px) rotate(-40deg); /* Ochiq holat: tegmasdan */
+                    }
+
+                    .claw-joint {
+                        fill: #fff;
+                        cx: 16;
+                        cy: 28;
+                        r: 2;
+                    }
+                    </style>
+                </span>
+            </label>
+        </div>
+    </div>
+    <br>
+    <footer style="
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding: 15px 10px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #ffffff;
+        font-size: 14px;
+        z-index: 2;
+        border-top: 2px solid;
+        border-image: linear-gradient(to right, #ed6ea0, #ec8c69, #f7186a, #fbb03b) 1;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+    ">
+        © 2025 Smart Home Project — Barcha huquqlar himoyalangan. <br>
+        Yaratuvchi: 
+        <a href="https://jahongir.onrender.com" 
+        style="color: #1e90ff; text-decoration: none;" 
+        onmouseover="this.style.color='#fbb03b'" 
+        onmouseout="this.style.color='#1e90ff'">
+        Jahongir Muhammadiyev
+        </a> 
+        | 
+        <a href="https://jahongir.onrender.com" 
+        style="color: #1e90ff; text-decoration: none;" 
+        onmouseover="this.style.color='#fbb03b'" 
+        onmouseout="this.style.color='#1e90ff'">
+        About Project
+        </a>
+    </footer>
+
+    <script>
+        async function updateClaw(checked) {
+            const action = checked ? 'open' : 'close';
+            await fetch(`/update?servo=1&action=${action}`);
+        }
+
+        async function updateJoystick(joystick, action) {
+            let pulse = 500; // Placeholder, adjust as needed
+            if (action == 'up' || action == 'left') pulse = Math.min(pulse + 20, 1000);
+            else pulse = Math.max(pulse - 20, 0);
+
+            await fetch(`/update?joystick=${joystick}&action=${action}&pulse=${pulse}`);
+        }
+    </script>
+</body>
+</html>

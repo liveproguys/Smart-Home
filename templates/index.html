@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+   <html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+      <link rel="Icon" href="{{ url_for('static', filename='img/icon.png') }}">
+
+
+      <title>Smart home - Log In</title>
+   </head>
+   <body>
+      <div class="login">
+         <img src="{{ url_for('static', filename='img/login-bg.png') }}" alt="image" class="login__bg">
+
+         <form action="" class="login__form" method="post">
+            <h1 class="login__title">Login</h1>
+
+            <div class="login__inputs">
+
+               <div class="login__box">
+                  <input name ="password" type="password" placeholder="Password" required class="login__input">
+                  <i class="ri-lock-2-fill"></i>
+               </div>
+            </div>
+
+            <div class="login__check">
+            </div>
+
+            <button type="submit" class="Mayank1170-button-1">Login</button>
+
+         </form>
+      </div>
+      <footer style="
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 15px 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #ffffff;
+      font-size: 14px;
+      z-index: 2;
+      border-top: 2px solid;
+      border-image: linear-gradient(to right, #ed6ea0, #ec8c69, #f7186a, #fbb03b) 1;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  ">
+      © 2025 Smart Home Project — Barcha huquqlar himoyalangan. <br>
+      Yaratuvchi: 
+      <a href="https://jahongir.onrender.com" 
+         style="color: #1e90ff; text-decoration: none;" 
+         onmouseover="this.style.color='#fbb03b'" 
+         onmouseout="this.style.color='#1e90ff'">
+         Jahongir Muhammadiyev
+      </a> 
+      | 
+      <a href="https://jahongir.onrender.com" 
+         style="color: #1e90ff; text-decoration: none;" 
+         onmouseover="this.style.color='#fbb03b'" 
+         onmouseout="this.style.color='#1e90ff'">
+         About Project
+      </a>
+  </footer>
+  
+   </body>
+</html>
+
