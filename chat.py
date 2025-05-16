@@ -2,8 +2,6 @@ import os
 import asyncio
 import speech_recognition as sr
 import google.generativeai as genai
-from elevenlabs.client import ElevenLabs
-from elevenlabs import save
 import serial
 import pygame
 import time
@@ -18,7 +16,7 @@ pygame.mixer.init()
 
 class Chat:
     def __init__(self, start):
-        genai.configure(api_key="AIzaSyA1zY2PHliAhjDPb0-HLUf7c6HBz1SVFAM")
+        genai.configure(api_key="TOKEN")
         model = genai.GenerativeModel('gemini-2.0-flash')
         self.chat = model.start_chat()
         self.chat.send_message(start)
